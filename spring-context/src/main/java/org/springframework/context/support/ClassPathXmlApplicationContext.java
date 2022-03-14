@@ -80,7 +80,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 *
 	 * Create a new ClassPathXmlApplicationContext, loading the definitions
 	 * from the given XML file and automatically refreshing the context.
-	 * @param configLocation resource location
+	 * @param configLocation resource locatio
 	 * @throws BeansException if context creation failed
 	 */
 	public ClassPathXmlApplicationContext(String configLocation) throws BeansException {
@@ -139,8 +139,14 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	public ClassPathXmlApplicationContext(
 			String[] configLocations, boolean refresh, @Nullable ApplicationContext parent)
 			throws BeansException {
-		// 调用父类构造方法，进行相关的对象创建等操作,包含属性的赋值操作
+		/**
+		 * 调用父类构造方法，进行相关的对象创建等操作,包含属性的赋值操作
+		 * xml 文件解析器的配置
+		 */
 		super(parent);
+		/**
+		 * 设置配置文件的地址信息
+		 */
 		setConfigLocations(configLocations);
 		if (refresh) {
 			refresh();

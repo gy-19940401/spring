@@ -98,6 +98,10 @@ final class PostProcessorRegistrationDelegate {
             // 用于保存本次要执行的BeanDefinitionRegistryPostProcessor
             List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
+            /**
+             * 分阶段处理 PriorityOrdered，Ordered，release
+             */
+
             // First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
             // 调用所有实现PriorityOrdered接口的BeanDefinitionRegistryPostProcessor实现类
             // 找到所有实现BeanDefinitionRegistryPostProcessor接口bean的beanName

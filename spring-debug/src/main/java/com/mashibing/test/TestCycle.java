@@ -9,9 +9,9 @@ public class TestCycle {
 
         ApplicationContext ac = new ClassPathXmlApplicationContext("test.xml");
         A bean = ac.getBean(A.class);
-//        System.out.println(bean);
+        System.out.println(bean);
         B bean1 = ac.getBean(B.class);
-//        System.out.println(bean1);
+        System.out.println(bean1);
 
     }
 }
