@@ -1111,6 +1111,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	@Override
 	public void setParentBeanFactory(@Nullable BeanFactory parentBeanFactory) {
 		// 如果当前已经有一个父级bean工厂，且传进来的父级bean工厂与当前父级bean工厂不是同一个
+		// 默认情况下 两个都是 null
 		if (this.parentBeanFactory != null && this.parentBeanFactory != parentBeanFactory) {
 			// 抛出异常
 			throw new IllegalStateException("Already associated with parent BeanFactory: " + this.parentBeanFactory);

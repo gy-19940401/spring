@@ -136,14 +136,23 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
         try {
 			/**
 			 *  创建DefaultListableBeanFactory对象
+             *
+             *  构建出 一系列的 IoC容器
+             *
+             *  1、beanDefinitionMap
+             *  2、
 			 */
             DefaultListableBeanFactory beanFactory = createBeanFactory();
 			/**
 			 * 为了序列化指定id，可以从id反序列化到beanFactory对象
+             * org.springframework.context.support.ClassPathXmlApplicationContext @ 6e8dacdf（Integer.toHexString(System.identityHashCode(obj))）
 			 */
             beanFactory.setSerializationId(getId());
 			/**
 			 * 定制beanFactory，设置相关属性，包括是否允许覆盖同名称的不同定义的对象以及循环依赖
+             * 循环以依赖的问题 :
+             *      继承 ClassPathXmlApplicationContext
+             *      给对应的属性赋值
 			 */
             customizeBeanFactory(beanFactory);
 			/**

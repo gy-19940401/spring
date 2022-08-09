@@ -543,6 +543,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		// 从缓存中获取该类的信息
 		InjectionMetadata metadata = this.injectionMetadataCache.get(cacheKey);
 		// 判断是否需要刷新缓存
+		//DCL
 		if (InjectionMetadata.needsRefresh(metadata, clazz)) {
 			synchronized (this.injectionMetadataCache) {
 				metadata = this.injectionMetadataCache.get(cacheKey);
@@ -756,7 +757,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		protected void inject(Object bean, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
 			Field field = (Field) this.member;
 			Object value;
-			// 如果缓存，从缓存中获取
+			// 如果缓存，从缓存中获取（容器的多级缓存）
 			if (this.cached) {
 				// 如果  cachedFieldValue instanceof DependencyDescriptor。则调用 resolveDependency 方法重新加载。
 				value = resolvedCachedArgument(beanName, this.cachedFieldValue);

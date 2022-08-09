@@ -246,7 +246,7 @@ public class InjectionMetadata {
 
 		/**
 		 * 进行属性或者方法注入，但是方法注入前会判断是否已经有设置值了，有设置就不会注入，直接返回
-		 *
+		 * 先根据类型，再根据名称
 		 * Either this or {@link #getResourceToInject} needs to be overridden.
 		 */
 		protected void inject(Object target, @Nullable String requestingBeanName, @Nullable PropertyValues pvs)

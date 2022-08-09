@@ -1348,7 +1348,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
 
 			// Jse330Provider:javax.inject.Provider实现类.与DependencyObjectProvoid作用一样，也是用于延迟解析依赖
-			// 项，但它是使用javax.inject.Provider作为依赖 对象，以减少与Springd耦合
+			// 项，但它是使用javax.inject.Provider作为依赖 对象，以减少与Spring耦合
 			// 新建一个专门用于构建javax.inject.Provider对象的工厂来构建创建Jse330Provider对象
 			return new Jsr330Factory().createDependencyProvider(descriptor, requestingBeanName);
 		}
