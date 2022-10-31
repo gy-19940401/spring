@@ -604,16 +604,24 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
             try {
                 /**
-                 *  BeanFactory 后置增强 自定义实现
+                 * BeanFactory 后置增强 自定义实现
                  * Allows post-processing of the bean factory in context subclasses.
-                 * 子类覆盖方法做额外的处理，此处我们自己一般不做任何扩展工作，但是可以查看web中的代码，是有具体实现的
+                 * 子类覆盖方法做额外的处理，此处我们自己一般不做任何扩展工作，但是可以查看 web 中的代码，是有具体实现的
                  *
                  * 子类对其进行扩展  implement ClassPathXmlApplicationContext 对工厂对象进行扩展
                  */
                 postProcessBeanFactory(beanFactory);
 
                 /**
-                 * BFPP
+                 * BFPP 执行 beanFactory 的 后置处理器 {*
+                 *     BeanFactoryPostProcessor{
+                 *            postProcessBeanFactory()
+                 *     }
+                 *
+                 *     BeanDefinitionRegistryPostProcessor extends BeanFactoryPostProcessor{
+                 *           postProcessBeanDefinitionRegistry()
+                 *     }
+                 * }
                  * Invoke factory processors registered as beans in the context.
                  * 调用各种 beanFactory 处理器
                  * 1. 解析 ${} 的替换工作
@@ -622,7 +630,24 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
                 invokeBeanFactoryPostProcessors(beanFactory);
 
                 /**
-                 * 准备工作
+                 * 准备工作 注册 bean 的 后置处理器 {
+                 *      初始化前后
+                 *      BeanPostProcessor{
+                 *             postProcessBeforeInitialization() --> 初始化前
+                 *             postProcessAfterInitialization() --> 初始化后
+                 *      }
+                 *
+                 *      实例化前后
+                 *      InstantiationAwareBeanPostProcessor{
+                 *          postProcessBeforeInstantiation() --> 实例化前
+                 *          postProcessAfterInstantiation() --> 实例化后
+                 *          postProcessProperties() --> 属性赋值的时候触发
+                 *      }
+                 * }
+                 *
+                 * 实例化 ： 调用 构造函数 分配 内存空间
+                 * 初始化 ： 给 成员属性 赋值
+                 *
                  * Register bean processors that intercept bean creation.
                  * 注册 bean 处理器，这里只是注册功能，真正调用的是getBean方法
                  */
@@ -634,26 +659,31 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
                  */
                 initMessageSource();
 
-                // Initialize event multicaster for this context.
-                // 初始化事件监听多路广播器
                 /**
+                 * Initialize event multicaster for this context.
+                 * 初始化事件监听多路广播器
                  * 是拿来干嘛的 作用是什么
                  */
                 initApplicationEventMulticaster();
 
                 /**
                  * Initialize other special beans in specific context subclasses.
-                 * 留给子类来初始化其他的bean
+                 * 留给子类来初始化其他的 bean
                  * Spring boot ：启动 tomcat
+                 * 类似于 spring refresh 事件
                  */
                 onRefresh();
 
-                // Check for listener beans and register them.
-                // 在所有注册的bean中查找listener bean,注册到消息广播器中
+                /**
+                 * Check for listener beans and register them.
+                 * 在所有注册的bean中查找listener bean,注册到消息广播器中
+                 */
                 registerListeners();
 
-                // Instantiate all remaining (non-lazy-init) singletons.
-                // 初始化剩下的单实例（非懒加载的）
+                /**
+                 * Instantiate all remaining (non-lazy-init) singletons.
+                 * 初始化剩下的单实例（非懒加载的）
+                 */
                 finishBeanFactoryInitialization(beanFactory);
 
                 // Last step: publish corresponding event.
@@ -817,7 +847,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         //      编译器织入，在java编译器，采用特殊的编译器，将切面织入到java类中
         //      类加载器织入，类加载期织入则指通过特殊的类加载器，在类字节码加载到JVM时，织入切面
         //      运行期织入，运行期织入则是采用cglib和jdk进行切面的织入
-        // aspectj提供了两种织入方式，第一种是通过特殊编译器，在编译器，将aspectj语言编写的切面类织入到java类中，第二种是类加载期织入，就是下面的load time weaving，此处后续讲
+        // aspectj提供了两种织入方式，第一种是通过特殊编译器，在编译器，将aspectj语言编写的切面类织入到java类中，第二种是类加载期织入，就是下面的 load time weaving，此处后续讲
         if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
             beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
             // Set a temporary ClassLoader for type matching.
@@ -825,7 +855,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         }
 
         // Register default environment beans.
-        // 注册默认的系统环境bean到一级缓存中（enviroment）
+        // 注册默认的系统环境 bean 到一级缓存中（enviroment）
         if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME)) {
             beanFactory.registerSingleton(ENVIRONMENT_BEAN_NAME, getEnvironment());
         }
@@ -858,7 +888,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      * <p>Must be called before singleton instantiation.
      */
     protected void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-        // 获取到当前应用程序上下文的beanFactoryPostProcessors变量的值，并且实例化调用执行所有已经注册的beanFactoryPostProcessor
+        // 获取到当前应用程序上下文的 beanFactoryPostProcessors 变量的值，并且实例化调用执行所有已经注册的 beanFactoryPostProcessor
         // 默认情况下，通过getBeanFactoryPostProcessors()来获取已经注册的 BFPP，但是默认是空的，那么问题来了，如果你想扩展，怎么进行扩展工作？
         //
         // 继承 this ,调用 addBeanFactoryPostProcessor
@@ -890,9 +920,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      * Use parent's if none defined in this context.
      */
     protected void initMessageSource() {
-        // 获取bean工厂，一般是DefaultListableBeanFactory
+        /**
+         * 获取bean工厂，一般是DefaultListableBeanFactory
+         */
         ConfigurableListableBeanFactory beanFactory = getBeanFactory();
-        // 首先判断是否已有xml文件定义了id为messageSource的bean对象
+        /**
+         * 首先判断是否已有 xml文件 定义了 id 为 messageSource 的 bean 对象
+         */
         if (beanFactory.containsLocalBean(MESSAGE_SOURCE_BEAN_NAME)) {
             // 如果有，则从BeanFactory中获取这个对象
             this.messageSource = beanFactory.getBean(MESSAGE_SOURCE_BEAN_NAME, MessageSource.class);
@@ -1011,8 +1045,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      * Doesn't affect other listeners, which can be added without being beans.
      */
     protected void registerListeners() {
-        // Register statically specified listeners first.
-        // 遍历应用程序中存在的监听器集合，并将对应的监听器添加到监听器的多路广播器中
+        /**
+         * Register statically specified listeners first.
+         * 遍历应用程序中存在的监听器集合，并将对应的监听器添加到监听器的多路广播器中
+         */
         for (ApplicationListener<?> listener : getApplicationListeners()) {
             getApplicationEventMulticaster().addApplicationListener(listener);
         }

@@ -46,15 +46,15 @@ final class PostProcessorRegistrationDelegate {
 
 
     /**
-     * @show 三部执行
-     *         1.先处理参数中的 bfpp,
-     *         2.在处理 bfrpp (子类处理)
-     *         3.最后处理 bfpp (父类)
-     * @author Ganyang
-     * @data 21:08
-     * @param beanFactory DefaultListableBeanFactory
+     * @param beanFactory               DefaultListableBeanFactory
      * @param beanFactoryPostProcessors 外部集合 默认时空的
      * @return void
+     * @show 三部执行
+     * 1.先处理参数中的 bfpp,
+     * 2.在处理 bfrpp (子类处理)
+     * 3.最后处理 bfpp (父类)
+     * @author Ganyang
+     * @data 21:08
      */
     public static void invokeBeanFactoryPostProcessors(
             ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
@@ -73,13 +73,19 @@ final class PostProcessorRegistrationDelegate {
             // BeanFactoryPostProcessor(父集合) 主要针对的操作对象是BeanFactory，
             // BeanDefinitionRegistryPostProcessor（子集合） 主要针对的操作对象是BeanDefinition
 
-            // 存放BeanFactoryPostProcessor的集合
+            // 存放 BeanFactoryPostProcessor 的集合
+            /**
+             * 常规的 （） beanFactory 后置处理器
+             */
             List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
-            // 存放BeanDefinitionRegistryPostProcessor的集合
+            // 存放 BeanDefinitionRegistryPostProcessor 的集合
+            /**
+             * registry 子类的 beanFactory 后置处理器
+             */
             List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
-            // 首先处理入参中的 beanFactoryPostProcessors,遍历所有的beanFactoryPostProcessors（默认是空的），将BeanDefinitionRegistryPostProcessor
-            // 和BeanFactoryPostProcessor区分开
+            // 首先处理入参中的 beanFactoryPostProcessors,遍历所有的beanFactoryPostProcessors（默认是空的），
+            // 将 BeanDefinitionRegistryPostProcessor 和 BeanFactoryPostProcessor 分开到两个组里面
             for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
                 // 如果是BeanDefinitionRegistryPostProcessor
                 if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
@@ -91,7 +97,7 @@ final class PostProcessorRegistrationDelegate {
                     // 添加到registryProcessors，用于后续执行 父集合的 postProcessBeanFactory 方法
                     registryProcessors.add(registryProcessor);
                 } else {
-                    // 否则，只是普通的BeanFactoryPostProcessor，添加到regularPostProcessors，用于后续执行postProcessBeanFactory方法
+                    // 否则，只是普通的BeanFactoryPostProcessor，添加到regularPostProcessors，用于后续执行 postProcessBeanFactory 方法
                     regularPostProcessors.add(postProcessor);
                 }
             }
@@ -120,7 +126,7 @@ final class PostProcessorRegistrationDelegate {
                 if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
                     // 获取名字对应的bean实例，添加到currentRegistryProcessors中
                     currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
-                    // 将要被执行的BFPP名称添加到processedBeans，避免后续重复执行
+                    // 将要被执行的 BFPP 名称添加到 processedBeans，避免后续重复执行
                     processedBeans.add(ppName);
                 }
             }
@@ -200,6 +206,9 @@ final class PostProcessorRegistrationDelegate {
             // 如果beanFactory不归属于BeanDefinitionRegistry类型，那么直接执行postProcessBeanFactory方法（参数）
             invokeBeanFactoryPostProcessors(beanFactoryPostProcessors, beanFactory);
         }
+
+        /** if end **/
+
 
         // 到这里为止，入参beanFactoryPostProcessors和容器中的所有BeanDefinitionRegistryPostProcessor已经全部处理完毕，下面开始处理容器中
         // 所有的BeanFactoryPostProcessor
@@ -284,27 +293,39 @@ final class PostProcessorRegistrationDelegate {
 
     /**
      * 注册beanPostProcessor
+     *
      * @param beanFactory
      * @param applicationContext
      */
     public static void registerBeanPostProcessors(
             ConfigurableListableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
 
-        // 找到所有实现了BeanPostProcessor接口的类
+        /**
+         * 找到 beanFactory 种 所有实现了 BeanPostProcessor 接口的类
+         */
         String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class, true, false);
 
-        // Register BeanPostProcessorChecker that logs an info message when
-        // a bean is created during BeanPostProcessor instantiation, i.e. when
-        // a bean is not eligible for getting processed by all BeanPostProcessors.
-        // 记录下BeanPostProcessor的目标计数
-        // 此处为什么要+1呢，原因非常简单，在此方法的最后会添加一个 BeanPostProcessorChecker 的类
+        /**
+         * Register BeanPostProcessorChecker that logs an info message when
+         * a bean is created during BeanPostProcessor instantiation.
+         *
+         * 记录 beanFactory 中 BeanPostProcessor 的目标计数
+         * 此处为什么要 +1 : 原因非常简单，在 本方法会添加一个 BeanPostProcessorChecker 的类
+         * BeanPostProcessorChecker ：类的作用是 --> 记录 beanFactory 中 beanProcessorTargetCount 的数量
+         * 初始的长度 + beanFactory +1(本方法添加)
+         */
         int beanProcessorTargetCount = beanFactory.getBeanPostProcessorCount() + 1 + postProcessorNames.length;
         // 添加BeanPostProcessorChecker(主要用于记录信息)到beanFactory中
         beanFactory.addBeanPostProcessor(new BeanPostProcessorChecker(beanFactory, beanProcessorTargetCount));
 
+
+        /**
+         * 以下的处理 类似 -- > BeanFactoryPostProcessor 的处理
+         * PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors()
+         */
         // Separate between BeanPostProcessors that implement PriorityOrdered,
         // Ordered, and the rest.
-        // 定义存放实现了PriorityOrdered接口的BeanPostProcessor集合
+        // 定义存放实现了 PriorityOrdered 接口的 BeanPostProcessor 集合
         List<BeanPostProcessor> priorityOrderedPostProcessors = new ArrayList<>();
 
         // 定义存放spring内部的BeanPostProcessor
@@ -395,6 +416,7 @@ final class PostProcessorRegistrationDelegate {
 
     /**
      * 对 postProcessors 进行排序，优先使用beanFactory的DependencyComparator，获取不到就使用OrderComparator.INSTANCE
+     *
      * @param postProcessors
      * @param beanFactory
      */
@@ -423,7 +445,7 @@ final class PostProcessorRegistrationDelegate {
 
     /**
      * 调用给定 BeanDefinitionRegistryPostProcessor Bean对象
-     *
+     * <p>
      * Invoke the given BeanDefinitionRegistryPostProcessor beans.
      */
     private static void invokeBeanDefinitionRegistryPostProcessors(
@@ -438,7 +460,7 @@ final class PostProcessorRegistrationDelegate {
 
     /**
      * 调用给定的 BeanFactoryPostProcessor类型Bean对象
-     *
+     * <p>
      * Invoke the given BeanFactoryPostProcessor beans.
      */
     private static void invokeBeanFactoryPostProcessors(
@@ -454,7 +476,7 @@ final class PostProcessorRegistrationDelegate {
 
     /**
      * 注册给定的BeanPostProcessor类型Bean对象
-     *
+     * <p>
      * Register the given BeanPostProcessor beans.
      */
     private static void registerBeanPostProcessors(
@@ -469,7 +491,7 @@ final class PostProcessorRegistrationDelegate {
 
     /**
      * 当前Bean在BeanPostProcessor实例化过程中被创建时，即当前一个Bean不适合被所有BeanPostProcessor处理时，记录一个信息消息
-     *
+     * <p>
      * BeanPostProcessor that logs an info message when a bean is created during
      * BeanPostProcessor instantiation, i.e. when a bean is not eligible for
      * getting processed by all BeanPostProcessors.
@@ -492,7 +514,8 @@ final class PostProcessorRegistrationDelegate {
 
         /**
          * 后置处理器的before方法，什么都不做，直接返回对象
-         * @param bean the new bean instance
+         *
+         * @param bean     the new bean instance
          * @param beanName the name of the bean
          * @return
          */
@@ -503,7 +526,8 @@ final class PostProcessorRegistrationDelegate {
 
         /**
          * 后置处理器的after方法，用来判断哪些是不需要检测的bean
-         * @param bean the new bean instance
+         *
+         * @param bean     the new bean instance
          * @param beanName the name of the bean
          * @return
          */
@@ -525,6 +549,7 @@ final class PostProcessorRegistrationDelegate {
 
         /**
          * 判断 beanName 是否是 完全内部使用
+         *
          * @param beanName
          * @return
          */

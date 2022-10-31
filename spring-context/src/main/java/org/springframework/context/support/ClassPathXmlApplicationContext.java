@@ -156,6 +156,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
          */
         setConfigLocations(configLocations);
         //默认需要刷新 Ioc 容器
+        // 初始化 beanFactory 封装 成 BeanDefinition
         if (refresh) {
             refresh();
         }

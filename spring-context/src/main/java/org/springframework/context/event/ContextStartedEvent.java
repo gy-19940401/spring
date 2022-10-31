@@ -23,19 +23,18 @@ import org.springframework.context.ApplicationContext;
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
- * @since 2.5
  * @see ContextStoppedEvent
+ * @since 2.5
  */
 @SuppressWarnings("serial")
 public class ContextStartedEvent extends ApplicationContextEvent {
 
-	/**
-	 * Create a new ContextStartedEvent.
-	 * @param source the {@code ApplicationContext} that has been started
-	 * (must not be {@code null})
-	 */
-	public ContextStartedEvent(ApplicationContext source) {
-		super(source);
-	}
-
+    /**
+     * 当使用 ConfigurableApplicationContext （ApplicationContext子接口）接口中的 start() 方法启动 ApplicationContext时，该事件被发布
+     *
+     * @param source 完成 启动的 ApplicationContext
+     */
+    public ContextStartedEvent(ApplicationContext source) {
+        super(source);
+    }
 }
